@@ -1,0 +1,36 @@
+// firebase methods
+
+import 'package:cloud_firestore/cloud_firestore.dart'; // service that we use
+
+// declare db that is firebase firestore instance. connected to database
+class FirebaseTodoAPI {
+  static final FirebaseFirestore db = FirebaseFirestore.instance;
+
+  Future<String> addTodo(Map<String, dynamic> todo) async {
+    try {
+      final docRef = await db.collection("todos").add(
+          todo); // return document reference (contain the id of the document).
+      await db.collection("todos").doc(docRef.id).update({'id': docRef.id});
+                                                // add field
+      return "Successfully added todo!";
+    } on FirebaseException catch (e) {
+      return "Failed with error '${e.code}: ${e.message}";
+    }
+  }
+
+  Stream<QuerySnapshot> getAllTodos() {
+    return db.collection("todos").snapshots();
+  }
+
+  Future<String> deleteTodo(String? id) async {
+    // print("To delete: $id");
+    try {
+      // to access id reference
+      await db.collection("todos").doc(id).delete();
+
+      return "Successfully deleted todo!";
+    } on FirebaseException catch (e) {
+      return "Failed with error '${e.code}: ${e.message}";
+    }
+  }
+}
